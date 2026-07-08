@@ -1,0 +1,19 @@
+FROM nginx:1.21-alpine
+
+# Clear default boilerplate placeholder files distributed by Nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Direct copy step: Pulls production artifacts out of your local target directory 
+# change "apex-ui" below if the folder name is exactly "apex-ui"
+COPY ./apex-ui/ /usr/share/nginx/html/
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# --- REFERENCE EXECUTION SEQUENCE FLOW ---
+# 1. Run local compilation:   npm run build --prod
+# 2. Package Docker Image:     docker build -f DockerfileUI -t apex-ui .
+# 3. Purge older iterations:  docker stop apex-ui && docker rm apex-ui
+# 4. Start Live Instance:      docker run -d -p 4200:80 --add-host=host.docker.internal:host-gateway --name apex-ui apex-ui
+

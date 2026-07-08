@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # =========================================================================
+  # DATABASE SERVICE: PostgreSQL Container Layer
+  # =========================================================================
+  apex-db:
+    image: postgres:15-alpine
+    container_name: apex-db
+    environment:
+      POSTGRES_DB: apex_api_v1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432" # Maps container 5432 to host port 5433 to match your config
+    volumes:
+      - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/pgdata:/var/lib/postgresql/data"
+    networks:
+      - apex-network
+    restart: unless-stopped
+
+  # =========================================================================
+  # BACKEND SERVICE: Spring Boot App Layer
+  # =========================================================================
+  apex-backend:
+    build:
+      context: .
+      dockerfile: DockerfileApp # Points to your customized app Dockerfile name
+    container_name: apex-backend
+    ports:
+      - "8081:8080"
+    environment:
+      # Inject runtime variables directly to override application.properties dynamically
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://apex-db:5432/apex_api_v1
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - DOCUMENT_UPLOAD_PATH=/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/uploads
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      # Mounts your MacBook folder directly inside the container layout for persistence
+      - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build:/app/uploads"
+    networks:
+      - apex-network
+    depends_on:
+      apex-db:
+        condition: service_started # Waits for PostgreSQL container initialization layer
+
+  # =========================================================================
+  # FRONTEND SERVICE: Nginx Static UI Layer
+  # =========================================================================
+  apex-ui:
+    build:
+      context: .
+      dockerfile: DockerfileUI # Points to your customized UI Dockerfile name
+    container_name: apex-ui
+    ports:
+      - "4200:80" # Binds standard port 80 out to your browser dev target 4200
+    networks:
+      - apex-network
+    restart: unless-stopped
+
+# Shared structural volumes and isolated networks configuration bounds
+volumes:
+  apex_db_data:
+
+networks:
+  apex-network:
+    driver: bridge

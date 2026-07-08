@@ -1,0 +1,25 @@
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# Create a non-privileged system user for secure application execution
+RUN adduser --system --group spring
+USER spring:spring
+
+ENV DOCUMENT_UPLOAD_PATH="/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/uploads"
+
+# FIXED: Explicitly copy ONLY the executable bootJar artifact
+COPY ./apex-app/*-SNAPSHOT.jar app.jar
+
+# Expose your standard application listening port
+EXPOSE 8081
+
+# Optimize JVM flag allocations for quick container responsiveness
+ENTRYPOINT ["java", "-XX:+UseG1GC", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]
+
+# --- REFERENCE EXECUTION SEQUENCE FLOW ---
+# 1. Run local compilation:   ./gradlew clean bootJar -x test
+# 2. Package Docker Image:     docker build -f DockerfileApp -t apex-backend .
+# 3. Purge older iterations:  docker stop apex-backend && docker rm apex-backend
+# 4. Start Live Instance:      docker run -d -p 8081:8081 --add-host=host.docker.internal:host-gateway --name apex-backend apex-backend
+#docker logs -f apex-backend
