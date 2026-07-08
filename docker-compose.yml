@@ -4,20 +4,20 @@ services:
   # =========================================================================
   # DATABASE SERVICE: PostgreSQL Container Layer
   # =========================================================================
-  apex-db:
-    image: postgres:15-alpine
-    container_name: apex-db
-    environment:
-      POSTGRES_DB: apex_api_v1
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-    ports:
-      - "5433:5432" # Maps container 5432 to host port 5433 to match your config
-    volumes:
-      - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/pgdata:/var/lib/postgresql/data"
-    networks:
-      - apex-network
-    restart: unless-stopped
+  # apex-db:
+  #   image: postgres:15-alpine
+  #   container_name: apex-db
+  #   environment:
+  #     POSTGRES_DB: apex_api_v1
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: root
+  #   ports:
+  #     - "5433:5432" # Maps container 5432 to host port 5433 to match your config
+  #   volumes:
+  #     - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/pgdata:/var/lib/postgresql/data"
+  #   networks:
+  #     - apex-network
+  #   restart: unless-stopped
 
   # =========================================================================
   # BACKEND SERVICE: Spring Boot App Layer
@@ -28,22 +28,24 @@ services:
       dockerfile: DockerfileApp # Points to your customized app Dockerfile name
     container_name: apex-backend
     ports:
-      - "8081:8080"
+      - "8081:8081"
     environment:
       # Inject runtime variables directly to override application.properties dynamically
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://apex-db:5432/apex_api_v1
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=root
+      #- SPRING_DATASOURCE_URL=jdbc:postgresql://apex-db:5432/apex_api_v1
+      #- SPRING_DATASOURCE_USERNAME=postgres
+      #- SPRING_DATASOURCE_PASSWORD=root
       - DOCUMENT_UPLOAD_PATH=/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/uploads
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=server
     volumes:
       # Mounts your MacBook folder directly inside the container layout for persistence
       - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build:/app/uploads"
+    extra_hosts:
+      - host.docker.internal:host-gateway  
     networks:
       - apex-network
-    depends_on:
-      apex-db:
-        condition: service_started # Waits for PostgreSQL container initialization layer
+    # depends_on:
+    #   apex-db:
+    #     condition: service_started # Waits for PostgreSQL container initialization layer
 
   # =========================================================================
   # FRONTEND SERVICE: Nginx Static UI Layer
