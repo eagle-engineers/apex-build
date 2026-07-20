@@ -34,22 +34,22 @@ services:
       #- SPRING_DATASOURCE_URL=jdbc:postgresql://apex-db:5432/apex_api_v1
       #- SPRING_DATASOURCE_USERNAME=postgres
       #- SPRING_DATASOURCE_PASSWORD=root
-      - DOCUMENT_UPLOAD_PATH=/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build/uploads
+      - DOCUMENT_UPLOAD_PATH=/root/Public/eagle-project/eagle-apex/docs
       - SPRING_PROFILES_ACTIVE=server
     volumes:
       # Mounts your MacBook folder directly inside the container layout for persistence
-      - "/Users/aravind/Desktop/aravind/eagle/eagle-site/apex-build:/app/uploads"
+      - "/root/Public/eagle-project/eagle-apex/docs:/app/uploads"
     extra_hosts:
-      - host.docker.internal:host-gateway  
+      - host.docker.internal:host-gateway
     networks:
       - apex-network
     # depends_on:
     #   apex-db:
     #     condition: service_started # Waits for PostgreSQL container initialization layer
 
-  # =========================================================================
-  # FRONTEND SERVICE: Nginx Static UI Layer
-  # =========================================================================
+    # =========================================================================
+    # FRONTEND SERVICE: Nginx Static UI Layer
+    # =========================================================================
   apex-ui:
     build:
       context: .
