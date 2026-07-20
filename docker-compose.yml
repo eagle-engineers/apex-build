@@ -30,14 +30,11 @@ services:
     ports:
       - "8081:8081"
     environment:
-      # Inject runtime variables directly to override application.properties dynamically
-      #- SPRING_DATASOURCE_URL=jdbc:postgresql://apex-db:5432/apex_api_v1
-      #- SPRING_DATASOURCE_USERNAME=postgres
-      #- SPRING_DATASOURCE_PASSWORD=root
-      - DOCUMENT_UPLOAD_PATH=/root/Public/eagle-project/eagle-apex/docs
+      # Change this to point to the internal container path where the volume is mounted
+      - DOCUMENT_UPLOAD_PATH=/app/uploads
       - SPRING_PROFILES_ACTIVE=server
     volumes:
-      # Mounts your MacBook folder directly inside the container layout for persistence
+      # This stays exactly the same
       - "/root/Public/eagle-project/eagle-apex/docs:/app/uploads"
     extra_hosts:
       - host.docker.internal:host-gateway
